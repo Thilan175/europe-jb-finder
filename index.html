@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Europe Job Finder | Sri Lanka</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--blue:#175cd3;--green:#087443;--amber:#9a6700}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:#10284d;color:#fff;padding:25px max(20px,calc((100% - 1180px)/2))}
+header h1{margin:0 0 4px;font-size:25px}header p{margin:0;color:#d6e4ff}
+main{max-width:1180px;margin:22px auto;padding:0 16px}
+.notice{background:#fff8e6;border:1px solid #f4d58a;border-radius:12px;padding:13px 15px;margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat,.panel,.job{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stat strong{font-size:25px;display:block}.stat span,.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
+.filters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+label{display:block;font-size:12px;font-weight:650;color:#475569;margin-bottom:4px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:10px;background:#fff;color:var(--ink);font:inherit}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;background:var(--blue);color:#fff;font-weight:650;cursor:pointer;text-decoration:none;display:inline-block}
+button.secondary,.btn.secondary{background:#eaf1ff;color:#174ea6}button.danger{background:#b42318}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.job{margin-bottom:10px}.job h3{margin:0 0 5px;font-size:17px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{font-size:11px;border-radius:20px;padding:3px 8px;background:#eef2f7;color:#344054}
+.chip.verified{background:#e6f6ee;color:var(--green)}.chip.check{background:#fff4db;color:var(--amber)}
+.job p{margin:4px 0}.empty{text-align:center;padding:36px 12px;color:var(--muted)}
+.source{padding:12px 0;border-bottom:1px solid var(--line)}.source:last-child{border:0}
+.source a{color:var(--blue);font-weight:650;text-decoration:none}.source p{margin:3px 0;color:var(--muted);font-size:12px}
+.modal{display:none;position:fixed;inset:0;background:#0b172acc;padding:18px;overflow:auto}.modal.open{display:block}
+.modalbox{max-width:650px;background:#fff;border-radius:16px;padding:20px;margin:30px auto}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wide{grid-column:1/-1}
+footer{max-width:1180px;margin:20px auto;padding:0 16px 30px;color:var(--muted);font-size:12px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.filters{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.filters,.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}.stats{grid-template-columns:1fr 1fr}}
+</style></head>
+<body>
+<header><h1>🌍 Europe Job Finder – Sri Lanka</h1><p>One place to track European job leads, official vacancies and agency checks.</p></header>
+<main>
+<div class="notice"><b>Safety first:</b> A listing is not “verified” just because it appears on Facebook or has good reviews. Check the agency licence, vacancy/job order and current status with SLBFE before paying or handing over documents. This starter dashboard does not scrape websites automatically.</div>
+<section class="stats">
+<div class="stat"><strong id="total">0</strong><span>Saved listings</span></div>
+<div class="stat"><strong id="verified">0</strong><span>SLBFE-checked listings</span></div>
+<div class="stat"><strong id="review">0</strong><span>Need verification</span></div>
+</section>
+<div class="grid">
+<section>
+<div class="panel">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><div><b>Find vacancies</b><div class="muted">Filter saved job advertisements</div></div><button onclick="openForm()">+ Add job ad</button></div>
+<div class="filters">
+<div><label>Country</label><select id="countryFilter" onchange="render()"><option value="">All countries</option></select></div>
+<div><label>Job type</label><select id="jobFilter" onchange="render()"><option value="">All job types</option></select></div>
+<div><label>Verification</label><select id="statusFilter" onchange="render()"><option value="">All statuses</option><option>SLBFE checked</option><option>Check needed</option><option>Expired</option></select></div>
+<div class="wide"><label>Search</label><input id="search" placeholder="Job title, agency, employer, keyword..." oninput="render()"></div>
+</div>
+<div class="actions"><button class="secondary" onclick="exportData()">Export backup (JSON)</button><label class="btn secondary" style="cursor:pointer">Import backup<input type="file" accept=".json" hidden onchange="importData(event)"></label><button class="secondary" onclick="clearFilters()">Clear filters</button></div>
+</div>
+<div id="listings" style="margin-top:12px"></div>
+</section>
+<aside>
+<div class="panel"><b>Official checks & trusted starting points</b>
+<div class="source"><a target="_blank" rel="noopener" href="https://applications.slbfe.lk/feb/feo/jsearchnew.asp">SLBFE Approved Vacancies</a><p>Approved ads, hot jobs, country and job searches.</p></div>
+<div class="source"><a target="_blank" rel="noopener" href="https://applications.slbfe.lk/feb/feo/actjobs.asp">SLBFE Hot Jobs</a><p>Readily available vacancies in hand.</p></div>
+<div class="source"><a target="_blank" rel="noopener" href="https://applications.slbfe.lk/feb/la/la_main.asp">SLBFE Licensed Agencies</a><p>Check licence and agency status.</p></div>
+<div class="source"><a target="_blank" rel="noopener" href="https://www.slbfe.lk/">SLBFE Official Website</a><p>Notices, services, complaints and guidance.</p></div>
+<div class="source"><a target="_blank" rel="noopener" href="https://www.slfea.lk/">Sri Lanka Foreign Employment Agency</a><p>State-owned foreign employment agency.</p></div>
+<div class="source"><a target="_blank" rel="noopener" href="https://www.facebook.com/">Facebook</a><p>Use only as a lead; verify independently.</p></div>
+<div class="source"><a target="_blank" rel="noopener" href="https://ikman.lk/">ikman.lk</a><p>Third-party advertisements; verify before acting.</p></div>
+<p class="muted">SLBFE hotline: 1989. Confirm contact details on the official SLBFE website.</p>
+</div>
+<div class="panel" style="margin-top:12px"><b>Verification checklist</b>
+<ul class="muted" style="padding-left:18px">
+<li>Agency licence is currently valid.</li><li>Agency is not suspended/cancelled.</li><li>Vacancy/job order can be checked with SLBFE.</li><li>Employer, salary, duties and contract are clear.</li><li>Fees are confirmed with SLBFE before payment.</li><li>Never rely on screenshots or star ratings alone.</li>
+</ul></div>
+</aside>
+</div>
+</main>
+<footer>Starter website · Listings are stored in this browser only (local storage). For multi-device access, hosting, secure database and approved data integrations are needed. No vacancy is pre-filled because live job details must be checked at source.</footer>
+<div class="modal" id="modal"><div class="modalbox">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0 0 12px">Add job advertisement</h2><button class="secondary" onclick="closeForm()">Close</button></div>
+<form id="jobForm" class="formgrid">
+<div><label>Job title *</label><input name="title" required placeholder="e.g. Factory Worker"></div>
+<div><label>Country *</label><select name="country" required id="formCountry"></select></div>
+<div><label>Job type *</label><select name="type" required id="formType"></select></div>
+<div><label>Salary (as advertised)</label><input name="salary" placeholder="e.g. EUR 900/month"></div>
+<div><label>Agency name</label><input name="agency"></div>
+<div><label>SLBFE licence number</label><input name="licence"></div>
+<div><label>Job order / vacancy no.</label><input name="order"></div>
+<div><label>Advertised / approved date</label><input name="date" type="date"></div>
+<div><label>Source type</label><select name="sourceType"><option>SLBFE official</option><option>Agency website</option><option>Facebook</option><option>ikman</option><option>Other job board</option></select></div>
+<div><label>Verification status</label><select name="status"><option>Check needed</option><option>SLBFE checked</option><option>Expired</option></select></div>
+<div class="wide"><label>Advertisement / application URL</label><input name="url" type="url" placeholder="https://..."></div>
+<div class="wide"><label>Requirements / notes</label><textarea name="notes" rows="3" placeholder="Experience, licence class, age, deadline, documents..."></textarea></div>
+<div class="wide actions"><button type="submit">Save listing</button><button type="button" class="secondary" onclick="closeForm()">Cancel</button></div>
+</form></div></div>
+<script>
+const countries=["Serbia","Romania","Poland","Croatia","Hungary","Slovakia","Bulgaria","Lithuania","Czech Republic","Other European Countries"];
+const types=["Light Vehicle Driver","Factory Worker","Machine Operator","Warehouse Worker","Packing Worker","Production Worker","General Labourer"];
+let jobs=JSON.parse(localStorage.getItem("euroJobFinderJobs")||"[]");
+function opts(el,arr,first){el.innerHTML=(first?'<option value="">'+first+'</option>':'')+arr.map(x=>`<option>${x}</option>`).join("")}
+opts(document.getElementById("countryFilter"),countries,"All countries");opts(document.getElementById("jobFilter"),types,"All job types");
+opts(document.getElementById("formCountry"),countries);opts(document.getElementById("formType"),types);
+function save(){localStorage.setItem("euroJobFinderJobs",JSON.stringify(jobs))}
+function esc(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+ const c=countryFilter.value,t=jobFilter.value,s=statusFilter.value,q=search.value.toLowerCase();
+ const filtered=jobs.filter(j=>(!c||j.country===c)&&(!t||j.type===t)&&(!s||j.status===s)&&JSON.stringify(j).toLowerCase().includes(q));
+ total.textContent=jobs.length;verified.textContent=jobs.filter(j=>j.status==="SLBFE checked").length;review.textContent=jobs.filter(j=>j.status==="Check needed").length;
+ listings.innerHTML=filtered.length?filtered.map(j=>`<article class="job"><h3>${esc(j.title)}</h3><div class="chips"><span class="chip">${esc(j.country)}</span><span class="chip">${esc(j.type)}</span><span class="chip ${j.status==="SLBFE checked"?"verified":j.status==="Check needed"?"check":""}">${esc(j.status)}</span></div><p><b>Salary:</b> ${esc(j.salary||"Not stated")} · <b>Agency:</b> ${esc(j.agency||"Not stated")}</p><p><b>Licence:</b> ${esc(j.licence||"Not entered")} · <b>Job order:</b> ${esc(j.order||"Not entered")}</p><p class="muted">${esc(j.sourceType||"")} ${j.date?"· "+esc(j.date):""}</p><p>${esc(j.notes||"")}</p><div class="actions">${j.url?`<a class="btn" target="_blank" rel="noopener" href="${esc(j.url)}">Open original ad ↗</a>`:""}<button class="secondary" onclick="editStatus('${j.id}')">Update status</button><button class="danger" onclick="removeJob('${j.id}')">Delete</button></div></article>`).join(""):'<div class="panel empty"><b>No saved job ads match these filters.</b><p>Open the official SLBFE links, check current vacancies, then save relevant ads here.</p></div>';
+}
+function openForm(){modal.classList.add("open")}function closeForm(){modal.classList.remove("open");jobForm.reset()}
+jobForm.addEventListener("submit",e=>{e.preventDefault();let d=Object.fromEntries(new FormData(jobForm));d.id=crypto.randomUUID?crypto.randomUUID():String(Date.now());jobs.unshift(d);save();closeForm();render()});
+function removeJob(id){if(confirm("Delete this saved listing?")){jobs=jobs.filter(j=>j.id!==id);save();render()}}
+function editStatus(id){let j=jobs.find(x=>x.id===id);let s=prompt("Enter exactly: SLBFE checked, Check needed, or Expired",j.status);if(["SLBFE checked","Check needed","Expired"].includes(s)){j.status=s;save();render()}}
+function clearFilters(){countryFilter.value="";jobFilter.value="";statusFilter.value="";search.value="";render()}
+function exportData(){let a=document.createElement("a"),b=new Blob([JSON.stringify(jobs,null,2)],{type:"application/json"});a.href=URL.createObjectURL(b);a.download="europe-job-finder-backup.json";a.click();URL.revokeObjectURL(a.href)}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x))throw 0;jobs=x;save();render();alert("Backup imported")}catch{alert("Invalid backup file")}};r.readAsText(f)}
+render();
+</script></body></html>
